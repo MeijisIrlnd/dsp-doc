@@ -1,5 +1,4 @@
 #pragma once
-#pragma warning(push, 0)
 #ifndef _CONSOLE_COLOURS_H
 #define _CONSOLE_COLOURS_H
 #include <string>
