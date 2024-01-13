@@ -5,7 +5,7 @@ html/
 v*/
 # thanks for the cool name clion
 cmake-build-release-visual-studio
-
+.idea
 # Personal dev setup
 util/article
 tests/plot.h
