@@ -3,6 +3,8 @@
 out/
 html/
 v*/
+# thanks for the cool name clion
+cmake-build-release-visual-studio
 
 # Personal dev setup
 util/article

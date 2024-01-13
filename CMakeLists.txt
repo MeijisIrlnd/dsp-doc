@@ -1,0 +1,53 @@
+# Call with -DWERROR=true to treat warnings as errors
+cmake_minimum_required(VERSION 3.12)
+project(dsp-doc VERSION 1.0.0)
+set(CMAKE_CXX_STANDARD 11)
+# defines list_subdirs and find_sources
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake-helpers/helpers.cmake)
+
+if(MSVC)
+    # /GR- disables rtti (https://learn.microsoft.com/en-us/cpp/build/reference/gr-enable-run-time-type-information?view=msvc-170)
+    # /fp:fast is the MSVC version of -ffast-math (https://stackoverflow.com/questions/26450193/is-there-a-ffast-math-flag-equivalent-for-the-visual-studio-c-compiler)
+    # /W4 is max warnings (https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170)
+    set(platform_specific_options /GR- /fp:fast /W4)
+    if(${WERROR})
+        # append /WX (warnings as errors)
+        set(platform_specific_options ${platform_specific_options} /WX)
+    endif()
+    # TODO: Other windows compilers??
+else()
+    set(platform_specific_options -ffast-math -fno-rtti -Wall -Wextra -Wfatal-errors -Wpedantic -pedantic-errors)
+    if(${WERROR})
+        # append -Werror
+        set(platform_specific_options ${platform_specific_options} -Werror)
+    endif()
+endif()
+
+set(includes ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/dsp)
+list_subdirs(subdirs ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+foreach(subdir IN LISTS subdirs)
+    find_sources(current_sources ${CMAKE_CURRENT_SOURCE_DIR}/tests/${subdir})
+    list(APPEND all_test_sources ${current_sources})
+    set(current_target_name ${subdir}-tests)
+    add_executable(${current_target_name} ${CMAKE_CURRENT_SOURCE_DIR}/util/test/main.cpp ${current_sources})
+    target_include_directories(${current_target_name} PRIVATE ${includes})
+    target_compile_options(${current_target_name} PRIVATE ${platform_specific_options})
+endforeach ()
+
+add_executable(all-tests ${CMAKE_CURRENT_SOURCE_DIR}/util/test/main.cpp ${all_test_sources})
+target_include_directories(all-tests PRIVATE ${includes})
+target_compile_options(all-tests PRIVATE ${platform_specific_options})
+
+list_subdirs(benchmark_subdirs ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks)
+foreach(subdir IN LISTS benchmark_subdirs)
+    find_sources(current_sources ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/${subdir})
+    list(APPEND all_benchmark_sources ${current_sources})
+    set(current_target_name ${subdir}-benchmarks)
+    add_executable(${current_target_name} ${CMAKE_CURRENT_SOURCE_DIR}/util/test/main.cpp ${current_sources})
+    target_include_directories(${current_target_name} PRIVATE ${includes})
+    target_compile_options(${current_target_name} PRIVATE ${platform_specific_options})
+endforeach()
+
+add_executable(all-benchmarks ${CMAKE_CURRENT_SOURCE_DIR}/util/test/main.cpp ${all_benchmark_sources})
+target_include_directories(all-benchmarks PRIVATE ${includes})
+target_compile_options(all-benchmarks PRIVATE ${platform_specific_options})

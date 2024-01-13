@@ -76,23 +76,32 @@ int TestList::run(int repeats) {
 	currentlyRunning.resize(0);
 	return 0;
 }
+#if defined(__APPLE__)
+	#include <execinfo.h>
+	#include <signal.h>
+	#include <stdlib.h>
+	#include <unistd.h>
+	void errorHandler(int sig) {
+		void *array[10];
+		size_t size;
 
-#include <execinfo.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <unistd.h>
-void errorHandler(int sig) {
-	void *array[10];
-	size_t size;
+		// get void*'s for all entries on the stack
+		size = backtrace(array, 10);
 
-	// get void*'s for all entries on the stack
-	size = backtrace(array, 10);
-
-	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-	backtrace_symbols_fd(array, size, STDERR_FILENO);
-	exit(1);
-}
+		// print out all the frames to stderr
+		fprintf(stderr, "Error: signal %d:\n", sig);
+		backtrace_symbols_fd(array, size, STDERR_FILENO);
+		exit(1);
+	}
+// TODO: Handle Linux also
+#else
+	#include <csignal>
+	void errorHandler(int sig) {
+		fprintf(stderr, "Error: signal %d:\n", sig);
+		// TODO: Backtrace
+		exit(1);
+	}
+#endif
 
 double defaultBenchmarkTime = 1;
 int defaultBenchmarkDivisions = 5;

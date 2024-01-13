@@ -1,0 +1,20 @@
+# List all subdirs within a given directory
+# USAGE: list_subdirs(OUTPUT DIR_TO_LIST)
+function(list_subdirs result dirtolist)
+    file(GLOB children RELATIVE ${dirtolist} ${dirtolist}/*)
+    set(DIR_LIST "")
+    foreach(child ${children})
+        if(IS_DIRECTORY ${dirtolist}/${child})
+            list(APPEND dirlist ${child})
+        endif()
+    endforeach ()
+    # a function creates a new scope, so use PARENT_SCOPE to circumvent that..
+    set(${result} ${dirlist} PARENT_SCOPE)
+endfunction()
+
+# Find all cpp files within a given directory (non recursively)
+# USAGE: find_sources(SOURCE_LIST DIR_TO_LIST)
+function(find_sources result dirtolist)
+    file(GLOB sources ${dirtolist}/*.cpp)
+    set(${result} ${sources} PARENT_SCOPE)
+endfunction()

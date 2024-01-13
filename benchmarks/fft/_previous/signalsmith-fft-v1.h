@@ -49,7 +49,11 @@ because of temporary memory used for out-of-place/in-place shuffling.
 */
 
 // required for usable performance in debug releases
+#if defined(_MSC_VER)
+#define INLINE __forceinline inline
+#else
 #define INLINE __attribute__((always_inline)) inline
+#endif
 
 namespace signalsmith_v1 { // changed from signalsmith to avoid a collision
 namespace fft {
@@ -154,14 +158,21 @@ namespace _internal {
 
 template<typename complexValue, typename complexTwiddle>
 INLINE complexValue applyTwiddle(const complexValue& value, const complexTwiddle& twiddle) {
+	// Syl: C++11 compliant
 	return {
+		value.real*twiddle.real - value.imag*twiddle.imag,
+		value.imag*twiddle.real + value.real*twiddle.imag
+	};
+	/*return {
 		.real = value.real*twiddle.real - value.imag*twiddle.imag,
 		.imag = value.imag*twiddle.real + value.real*twiddle.imag
-	};
+	};*/
 }
 template<typename complexTwiddle>
 INLINE complexTwiddle conjugateTwiddle(const complexTwiddle& twiddle) {
-	return {.real=twiddle.real, .imag=-twiddle.imag};
+	// Syl: C++11 conformant syntax
+	return {twiddle.real, -twiddle.imag};
+	/*return {.real=twiddle.real, .imag=-twiddle.imag};*/
 }
 
 template<typename complexValue, typename complexTwiddle>
@@ -337,12 +348,19 @@ private:
 			int splitN = N/splitFactor;
 			Plan plan = getPlan(splitN, parallel*splitFactor);
 
-			PlanStep step = PlanStep{
+			// Syl: C++11 conformant syntax
+			PlanStep step{
+				splitFactor,
+				parallel,
+				splitN,
+				true
+			};
+			/*PlanStep step = PlanStep{
 				.N=splitFactor,
 				.parallel=parallel,
 				.repeats=splitN,
 				.isFactorised=true
-			};
+			};*/
 			// Twiddles and permutations
 			std::vector<int> newPermutation(N);
 			step.twiddles.resize(splitN*(splitFactor - 1));
@@ -353,10 +371,15 @@ private:
 
 					if (k > 0) { // The first twiddle factor is always 1, so we skip it
 						double twiddlePhase = (permutedI*k)*(2*M_PI)/N;
-						step.twiddles[i*(splitFactor - 1) + (k - 1)] = {
+						// Syl: C++11 conformant syntax
+						step.twiddles[i * (splitFactor - 1) + (k - 1)] = {
+							(twiddleType)cos(twiddlePhase),
+							(twiddleType)-sin(twiddlePhase)
+						};
+						/*step.twiddles[i*(splitFactor - 1) + (k - 1)] = {
 							.real=(twiddleType)cos(twiddlePhase),
 							.imag=(twiddleType)-sin(twiddlePhase)
-						};
+						};*/
 					}
 				}
 			}
@@ -373,12 +396,19 @@ private:
 				plan.permutation[i] = i;
 			}
 			if (N > 1) {
-				PlanStep step = PlanStep{
+				// Syl: C++11 conformant syntax
+				PlanStep step{
+					N,
+					parallel,
+					1,
+					false
+				};
+				/*PlanStep step = PlanStep{
 					.N=N,
 					.parallel=parallel,
 					.repeats=1,
 					.isFactorised=false
-				};
+				};*/
 				plan.steps.push_back(step);
 			}
 			return plan;
