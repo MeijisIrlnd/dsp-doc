@@ -76,7 +76,8 @@ int TestList::run(int repeats) {
 	currentlyRunning.resize(0);
 	return 0;
 }
-#if defined(__APPLE__)
+// TODO: Syl: Should this be MSVC, or specifically windows?
+#ifndef _MSC_VER
 	#include <execinfo.h>
 	#include <signal.h>
 	#include <stdlib.h>
@@ -93,7 +94,6 @@ int TestList::run(int repeats) {
 		backtrace_symbols_fd(array, size, STDERR_FILENO);
 		exit(1);
 	}
-// TODO: Handle Linux also
 #else
 	#include <csignal>
 	void errorHandler(int sig) {
