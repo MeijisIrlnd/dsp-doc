@@ -49,7 +49,9 @@ because of temporary memory used for out-of-place/in-place shuffling.
 */
 
 // required for usable performance in debug releases
-#if defined(_MSC_VER)
+// TODO: Syl - this is only for MSVC, but I think that's what we want
+// Also, appening the inline on the end probably isn't necessary?
+#if defined(__MSVC__)
 #define INLINE __forceinline inline
 #else
 #define INLINE __attribute__((always_inline)) inline
