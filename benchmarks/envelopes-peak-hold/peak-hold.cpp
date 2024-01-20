@@ -56,7 +56,7 @@ void benchmarkPeakHold(Test &test, std::string name) {
 	}
 }
 
-TEST("Peak hold", peak_hold) {
+TEST("Peak hold") {
 	benchmarkPeakHold<double>(test, "envelopes_peak_hold_double");
 	benchmarkPeakHold<float>(test, "envelopes_peak_hold_float");
 	benchmarkPeakHold<int>(test, "envelopes_peak_hold_int");

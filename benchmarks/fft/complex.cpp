@@ -38,13 +38,13 @@ void benchmarkComplex(std::string name) {
 	};
 	benchmark.add<SignalsmithV1>("signalsmith-v1");
 	benchmark.add<SignalsmithV1NoPermute>("signalsmith-v1-nopermute");
-	
+
 	for (int n = 1; n <= 65536*16; n *= 2) {
 		LOG_EXPR(n);
 		benchmark.run(n, std::log2(n)*n + 1);
 	}
 }
 
-TEST("Complex FFT", complex_fft) {
+TEST("Complex FFT") {
 	benchmarkComplex<double>("complex_fft_double");
 }
