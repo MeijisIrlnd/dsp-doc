@@ -1,5 +1,5 @@
 # List all subdirs within a given directory
-# USAGE: list_subdirs(OUTPUT DIR_TO_LIST)
+# USAGE: list_subdirs(output dir_to_list)
 function(list_subdirs result dirtolist)
     file(GLOB children RELATIVE ${dirtolist} ${dirtolist}/*)
     set(DIR_LIST "")
@@ -13,8 +13,18 @@ function(list_subdirs result dirtolist)
 endfunction()
 
 # Find all cpp files within a given directory (non recursively)
-# USAGE: find_sources(SOURCE_LIST DIR_TO_LIST)
+# USAGE: find_sources(source_list dir_to_list)
 function(find_sources result dirtolist)
     file(GLOB sources ${dirtolist}/*.cpp)
     set(${result} ${sources} PARENT_SCOPE)
 endfunction()
+
+# Only enabled on macos
+if(APPLE)
+    # Find the system's architecture
+    # USAGE: find_macos_arch(detected_arch)
+    function(find_macos_arch result)
+        EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE detected_arch)
+        set(${result} ${detected_arch} PARENT_SCOPE)
+    endfunction()
+endif()

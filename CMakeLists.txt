@@ -2,10 +2,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(dsp-doc VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 11)
-# defines list_subdirs and find_sources
+# defines list_subdirs, find_sources and find_macos_arch
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake-helpers/helpers.cmake)
 
 if(MSVC)
+    # Statically link to the msvc runtime on windows (no external deps)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     # /GR- disables rtti (https://learn.microsoft.com/en-us/cpp/build/reference/gr-enable-run-time-type-information?view=msvc-170)
     # /fp:fast is the MSVC version of -ffast-math (https://stackoverflow.com/questions/26450193/is-there-a-ffast-math-flag-equivalent-for-the-visual-studio-c-compiler)
     # /W4 is max warnings (https://learn.microsoft.com/en-us/cpp/build/reference/compiler-option-warning-level?view=msvc-170)
@@ -15,6 +17,11 @@ if(MSVC)
         set(platform_specific_options ${platform_specific_options} /WX)
     endif()
 else()
+    # Uses a hilarious shell command to grab the system's architecture
+    find_macos_arch(detected_arch)
+    # Compiles for the aforementioned architecture
+    set(CMAKE_OSX_ARCHITECTURES "${detected_arch}" CACHE STRING "" FORCE)
+    message(STATUS "Compiling for arch ${detected_arch}")
     set(platform_specific_options -ffast-math -fno-rtti -Wall -Wextra -Wfatal-errors -Wpedantic -pedantic-errors)
     if(${WERROR})
         # append -Werror
